@@ -1,49 +1,18 @@
 "use client";
 
-import {  Menu, } from "lucide-react";
-
+import { Menu, X } from "lucide-react";
+import { useState } from "react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
-
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 
 interface MenuItem {
   title: string;
   url: string;
-  description?: string;
-  icon?: React.ReactNode;
-  items?: MenuItem[];
 }
 
-interface Navbar1Props {
+interface NavbarProps {
   className?: string;
-  logo?: {
-    url: string;
-    src: string;
-    alt: string;
-    title: string;
-    className?: string;
-  };
   menu?: MenuItem[];
   auth?: {
     login: {
@@ -57,162 +26,117 @@ interface Navbar1Props {
   };
 }
 
-const Navbar = ({
+export const Navbar = ({
   menu = [
     { title: "Home", url: "/" },
-    {
-      title: "Find Tutors",
-      url: "/find-tutors",
-    },
-    {
-      title: "Dashboard",
-      url: "/dashboard",
-    },
+    { title: "Find Tutors", url: "/find-tutors" },
+    { title: "Dashboard", url: "/dashboard" },
   ],
   auth = {
     login: { title: "Login", url: "/login" },
-    signup: { title: "Register", url: "/register" },
+    signup: { title: "Sign Up", url: "/register" },
   },
   className,
-}: Navbar1Props) => {
+}: NavbarProps) => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   return (
-    <section className={cn("py-4", className)}>
-      <div className="container mx-auto">
-        {/* Desktop Menu */}
-        <nav className="hidden items-center justify-between lg:flex">
-          <div className="flex items-center gap-6">
-            {/* Logo */}
-            <h1>Skill Bridge</h1>
-            <div className="flex items-center">
-              <NavigationMenu>
-                <NavigationMenuList>
-                  {menu.map((item) => renderMenuItem(item))}
-                </NavigationMenuList>
-              </NavigationMenu>
-            </div>
+    <header className={cn("sticky top-0 z-50 bg-white border-b border-[#dddbff]/30 backdrop-blur-md", className)}>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <nav className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <Link href="/" className="flex items-center">
+            <h1 className="text-2xl font-black bg-gradient-to-r from-[#2f27ce] to-[#443dff] bg-clip-text text-transparent">
+              SkillBridge
+            </h1>
+          </Link>
+
+          {/* Desktop Menu */}
+          <div className="hidden lg:flex items-center gap-8">
+            {menu.map((item) => (
+              <Link
+                key={item.title}
+                href={item.url}
+                className="text-sm font-medium text-[#040316]/70 hover:text-[#2f27ce] transition-colors"
+              >
+                {item.title}
+              </Link>
+            ))}
           </div>
-          <div className="flex gap-2">
-            <Button asChild variant="outline" size="sm">
-              <a href={auth.login.url}>{auth.login.title}</a>
-            </Button>
-            <Button asChild size="sm">
-              <a href={auth.signup.url}>{auth.signup.title}</a>
-            </Button>
+
+          {/* Desktop Auth Buttons */}
+          <div className="hidden lg:flex items-center gap-3">
+            <Link href={auth.login.url}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-[#040316] hover:text-[#2f27ce] hover:bg-[#dddbff]/30"
+              >
+                {auth.login.title}
+              </Button>
+            </Link>
+            <Link href={auth.signup.url}>
+              <Button
+                size="sm"
+                className="bg-[#2f27ce] hover:bg-[#443dff] text-white"
+              >
+                {auth.signup.title}
+              </Button>
+            </Link>
           </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="lg:hidden p-2 rounded-lg hover:bg-[#dddbff]/30 transition-colors"
+            aria-label="Toggle menu"
+          >
+            {isMobileMenuOpen ? (
+              <X className="h-5 w-5 text-[#040316]" />
+            ) : (
+              <Menu className="h-5 w-5 text-[#040316]" />
+            )}
+          </button>
         </nav>
 
         {/* Mobile Menu */}
-        <div className="block lg:hidden">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
-            <h1>Skill Bridge</h1>
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Menu className="size-4" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent className="overflow-y-auto">
-                <SheetHeader>
-                  <SheetTitle>
-                    <h1>skill</h1>
-                  </SheetTitle>
-                </SheetHeader>
-                <div className="flex flex-col gap-6 p-4">
-                  <Accordion
-                    type="single"
-                    collapsible
-                    className="flex w-full flex-col gap-4"
+        {isMobileMenuOpen && (
+          <div className="lg:hidden py-4 border-t border-[#dddbff]/30">
+            <div className="flex flex-col gap-4">
+              {/* Mobile Menu Items */}
+              {menu.map((item) => (
+                <Link
+                  key={item.title}
+                  href={item.url}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-sm font-medium text-[#040316]/70 hover:text-[#2f27ce] transition-colors py-2"
+                >
+                  {item.title}
+                </Link>
+              ))}
+
+              {/* Mobile Auth Buttons */}
+              <div className="flex flex-col gap-2 pt-4 border-t border-[#dddbff]/30">
+                <Link href={auth.login.url} onClick={() => setIsMobileMenuOpen(false)}>
+                  <Button
+                    variant="outline"
+                    className="w-full border-[#dddbff] text-[#040316] hover:bg-[#dddbff]/30"
                   >
-                    {menu.map((item) => renderMobileMenuItem(item))}
-                  </Accordion>
-
-                  <div className="flex flex-col gap-3">
-                    <Button asChild variant="outline">
-                      <a href={auth.login.url}>{auth.login.title}</a>
-                    </Button>
-                    <Button asChild>
-                      <a href={auth.signup.url}>{auth.signup.title}</a>
-                    </Button>
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
+                    {auth.login.title}
+                  </Button>
+                </Link>
+                <Link href={auth.signup.url} onClick={() => setIsMobileMenuOpen(false)}>
+                  <Button
+                    className="w-full bg-[#2f27ce] hover:bg-[#443dff] text-white"
+                  >
+                    {auth.signup.title}
+                  </Button>
+                </Link>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    </section>
-  );
-};
-
-const renderMenuItem = (item: MenuItem) => {
-  if (item.items) {
-    return (
-      <NavigationMenuItem key={item.title}>
-        <NavigationMenuTrigger>{item.title}</NavigationMenuTrigger>
-        <NavigationMenuContent className="bg-popover text-popover-foreground">
-          {item.items.map((subItem) => (
-            <NavigationMenuLink asChild key={subItem.title} className="w-80">
-              <SubMenuLink item={subItem} />
-            </NavigationMenuLink>
-          ))}
-        </NavigationMenuContent>
-      </NavigationMenuItem>
-    );
-  }
-
-  return (
-    <NavigationMenuItem key={item.title}>
-      <NavigationMenuLink
-        href={item.url}
-        className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-muted hover:text-accent-foreground"
-      >
-        {item.title}
-      </NavigationMenuLink>
-    </NavigationMenuItem>
-  );
-};
-
-const renderMobileMenuItem = (item: MenuItem) => {
-  if (item.items) {
-    return (
-      <AccordionItem key={item.title} value={item.title} className="border-b-0">
-        <AccordionTrigger className="text-md py-0 font-semibold hover:no-underline">
-          {item.title}
-        </AccordionTrigger>
-        <AccordionContent className="mt-2">
-          {item.items.map((subItem) => (
-            <SubMenuLink key={subItem.title} item={subItem} />
-          ))}
-        </AccordionContent>
-      </AccordionItem>
-    );
-  }
-
-  return (
-    <a key={item.title} href={item.url} className="text-md font-semibold">
-      {item.title}
-    </a>
-  );
-};
-
-const SubMenuLink = ({ item }: { item: MenuItem }) => {
-  return (
-    <a
-      className="flex min-w-80 flex-row gap-4 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none hover:bg-muted hover:text-accent-foreground"
-      href={item.url}
-    >
-      <div className="text-foreground">{item.icon}</div>
-      <div>
-        <div className="text-sm font-semibold">{item.title}</div>
-        {item.description && (
-          <p className="text-sm leading-snug text-muted-foreground">
-            {item.description}
-          </p>
         )}
       </div>
-    </a>
+    </header>
   );
 };
-
-export { Navbar };
