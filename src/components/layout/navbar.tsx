@@ -29,8 +29,7 @@ interface NavbarProps {
 export const Navbar = ({
   menu = [
     { title: "Home", url: "/" },
-    { title: "Find Tutors", url: "/find-tutors" },
-    { title: "Dashboard", url: "/dashboard" },
+    { title: "Find Tutors", url: "/find-tutors" }
   ],
   auth = {
     login: { title: "Login", url: "/login" },

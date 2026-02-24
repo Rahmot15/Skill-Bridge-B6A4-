@@ -7,17 +7,48 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff, Mail, Lock, LogIn } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
+  const router = useRouter();
 
-    // login logic here
-    setTimeout(() => setIsLoading(false), 2000);
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    try {
+      setIsLoading(true);
+
+      const res = await authClient.signIn.email({
+        email,
+        password,
+      });
+
+      console.log("LOGIN RESPONSE:", res);
+      const session = await authClient.getSession();
+      console.log("SESSION:", session.data);
+
+      toast.success("Login successful!");
+
+      router.push("/");
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Login failed";
+
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -53,6 +84,7 @@ export default function LoginForm() {
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#2f27ce]/60" />
                 <Input
                   id="email"
+                  name="email"
                   type="email"
                   placeholder="you@example.com"
                   className="pl-10 h-12"
@@ -68,6 +100,7 @@ export default function LoginForm() {
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#2f27ce]/60" />
                 <Input
                   id="password"
+                  name="password"
                   type={showPassword ? "text" : "password"}
                   className="pl-10 pr-10 h-12"
                   required

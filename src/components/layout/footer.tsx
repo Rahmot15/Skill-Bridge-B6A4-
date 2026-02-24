@@ -1,7 +1,10 @@
-"use client";
-
 import Link from "next/link";
-import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin } from "lucide-react";
+import {
+  Facebook,
+  Twitter,
+  Instagram,
+  Linkedin,
+} from "lucide-react";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -44,28 +47,16 @@ export default function Footer() {
               </h3>
             </Link>
             <p className="text-sm text-[#040316]/60 mb-6 leading-relaxed max-w-sm">
-              Connect with expert tutors and master new skills. Your journey to success starts here.
+              Connect with expert tutors and master new skills. Your journey to
+              success starts here.
             </p>
-
-            {/* Newsletter */}
-            <div className="space-y-3">
-              <h4 className="text-sm font-semibold text-[#040316]">Stay Updated</h4>
-              <div className="flex gap-2">
-                <input
-                  type="email"
-                  placeholder="Your email"
-                  className="flex-1 px-3 py-2 text-sm rounded-lg border border-[#dddbff] bg-[#fbfbfe] outline-none focus:border-[#2f27ce] focus:ring-2 focus:ring-[#2f27ce]/10"
-                />
-                <button className="px-4 py-2 bg-[#2f27ce] hover:bg-[#443dff] text-white text-sm font-medium rounded-lg transition-colors">
-                  Subscribe
-                </button>
-              </div>
-            </div>
           </div>
 
           {/* Platform Links */}
           <div>
-            <h4 className="font-semibold text-[#040316] mb-4 text-sm">Platform</h4>
+            <h4 className="font-semibold text-[#040316] mb-4 text-sm">
+              Platform
+            </h4>
             <ul className="space-y-2.5">
               {footerLinks.platform.map((link) => (
                 <li key={link.name}>
@@ -82,7 +73,9 @@ export default function Footer() {
 
           {/* Company Links */}
           <div>
-            <h4 className="font-semibold text-[#040316] mb-4 text-sm">Company</h4>
+            <h4 className="font-semibold text-[#040316] mb-4 text-sm">
+              Company
+            </h4>
             <ul className="space-y-2.5">
               {footerLinks.company.map((link) => (
                 <li key={link.name}>

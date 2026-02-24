@@ -7,17 +7,51 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff, Mail, Lock, User, UserPlus } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true);
-    // Handle registration logic here
-    setTimeout(() => setIsLoading(false), 2000);
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    const name = formData.get("name") as string;
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    const confirmPassword = formData.get("confirmPassword") as string;
+
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+
+      await authClient.signUp.email({
+        name,
+        email,
+        password,
+      });
+
+      toast.success("Account created successfully!");
+      router.push("/check-email");
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Registration failed";
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -57,6 +91,7 @@ export default function RegisterForm() {
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#2f27ce]/60" />
                 <Input
                   id="name"
+                  name="name"
                   type="text"
                   placeholder="John Doe"
                   className="pl-10 h-12 border-[#dddbff] focus:border-[#2f27ce] focus:ring-[#2f27ce]/20 rounded-xl transition-all"
@@ -74,6 +109,7 @@ export default function RegisterForm() {
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#2f27ce]/60" />
                 <Input
                   id="email"
+                  name="email"
                   type="email"
                   placeholder="you@example.com"
                   className="pl-10 h-12 border-[#dddbff] focus:border-[#2f27ce] focus:ring-[#2f27ce]/20 rounded-xl transition-all"
@@ -91,6 +127,7 @@ export default function RegisterForm() {
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#2f27ce]/60" />
                 <Input
                   id="password"
+                  name="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Create a strong password"
                   className="pl-10 pr-10 h-12 border-[#dddbff] focus:border-[#2f27ce] focus:ring-[#2f27ce]/20 rounded-xl transition-all"
@@ -112,13 +149,17 @@ export default function RegisterForm() {
 
             {/* Confirm Password Field */}
             <div className="space-y-2 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-250">
-              <Label htmlFor="confirmPassword" className="text-[#040316] font-medium">
+              <Label
+                htmlFor="confirmPassword"
+                className="text-[#040316] font-medium"
+              >
                 Confirm Password
               </Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#2f27ce]/60" />
                 <Input
                   id="confirmPassword"
+                  name="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
                   placeholder="Confirm your password"
                   className="pl-10 pr-10 h-12 border-[#dddbff] focus:border-[#2f27ce] focus:ring-[#2f27ce]/20 rounded-xl transition-all"
@@ -150,11 +191,17 @@ export default function RegisterForm() {
                 className="text-sm text-[#040316]/70 cursor-pointer select-none leading-relaxed"
               >
                 I agree to the{" "}
-                <Link href="/terms" className="text-[#2f27ce] hover:text-[#443dff] font-medium transition-colors">
+                <Link
+                  href="/terms"
+                  className="text-[#2f27ce] hover:text-[#443dff] font-medium transition-colors"
+                >
                   Terms of Service
                 </Link>{" "}
                 and{" "}
-                <Link href="/privacy" className="text-[#2f27ce] hover:text-[#443dff] font-medium transition-colors">
+                <Link
+                  href="/privacy"
+                  className="text-[#2f27ce] hover:text-[#443dff] font-medium transition-colors"
+                >
                   Privacy Policy
                 </Link>
               </label>
@@ -183,7 +230,9 @@ export default function RegisterForm() {
               <div className="w-full border-t border-[#dddbff]"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-[#040316]/60">Or sign up with</span>
+              <span className="px-4 bg-white text-[#040316]/60">
+                Or sign up with
+              </span>
             </div>
           </div>
 
@@ -219,7 +268,11 @@ export default function RegisterForm() {
               variant="outline"
               className="h-12 border-[#dddbff] hover:bg-[#dddbff]/30 hover:border-[#2f27ce] transition-all rounded-xl group"
             >
-              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
               </svg>
               GitHub
