@@ -5,8 +5,16 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Clock, GraduationCap, TrendingUp, Award } from "lucide-react";
 
+interface Category {
+  id: string | number;
+  title: string;
+  description?: string;
+}
+
 interface Tutor {
   bio?: string;
+  completedSessions?: number;
+  totalStudents?: number;
   experienceYears?: number;
   education?: string;
   availability?: string;
@@ -15,79 +23,73 @@ interface Tutor {
 
 interface TutorDetailsTabProps {
   tutor: Tutor;
+  categories: Category[];
 }
 
-// Dummy skills data
-const dummySkills = [
-  { id: 1, name: "React", level: "Expert" },
-  { id: 2, name: "Node.js", level: "Advanced" },
-  { id: 3, name: "TypeScript", level: "Expert" },
-  { id: 4, name: "Next.js", level: "Advanced" },
-  { id: 5, name: "PostgreSQL", level: "Intermediate" },
-  { id: 6, name: "AWS", level: "Advanced" },
-];
-
-export default function TutorDetailsTab({ tutor }: TutorDetailsTabProps) {
+export default function TutorDetailsTab({ tutor, categories }: TutorDetailsTabProps) {
   return (
     <div className="grid lg:grid-cols-3 gap-6">
       {/* Main Content */}
       <div className="lg:col-span-2 space-y-6">
-        {/* About Section */}
-        <Card className="p-6 border-[#dddbff]/50 shadow-lg bg-white/90 backdrop-blur">
+        {/* About */}
+        <Card className="p-6 border-[#dddbff]/50 shadow-lg bg-white/90">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-1 h-8 bg-gradient-to-b from-[#2f27ce] to-[#443dff] rounded-full"></div>
-            <h2 className="text-2xl font-bold text-[#040316]">About Me</h2>
+            <div className="w-1 h-8 bg-linear-to-b from-[#2f27ce] to-[#443dff] rounded-full"></div>
+            <h2 className="text-2xl font-bold text-[#040316]">About</h2>
           </div>
           <p className="text-[#040316]/75 leading-relaxed text-lg">
-            {tutor?.bio || "Experienced tutor passionate about teaching and helping students achieve their learning goals. I specialize in making complex topics easy to understand through practical examples and hands-on practice."}
+            {tutor?.bio || "No bio available"}
           </p>
         </Card>
 
-        {/* Skills Section */}
-        <Card className="p-6 border-[#dddbff]/50 shadow-lg bg-white/90 backdrop-blur">
-          <div className="flex items-center gap-3 mb-5">
-            <div className="w-1 h-8 bg-gradient-to-b from-[#6366f1] to-[#8b5cf6] rounded-full"></div>
-            <h2 className="text-2xl font-bold text-[#040316]">Skills & Expertise</h2>
-          </div>
-          <div className="grid sm:grid-cols-2 gap-3">
-            {dummySkills.map((skill) => (
-              <div
-                key={skill.id}
-                className="group flex items-center justify-between p-4 rounded-xl bg-gradient-to-br from-[#f5f3ff] to-[#faf9ff] border border-[#dddbff]/50 hover:shadow-md hover:border-[#2f27ce]/30 transition-all"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-[#2f27ce] to-[#443dff]"></div>
-                  <span className="font-semibold text-[#040316]">{skill.name}</span>
-                </div>
-                <Badge
-                  variant="secondary"
-                  className="bg-[#dddbff]/50 text-[#2f27ce] text-xs group-hover:bg-[#2f27ce] group-hover:text-white transition-colors"
+        {/* Categories/Skills */}
+        {Array.isArray(categories) && categories.length > 0 && (
+          <Card className="p-6 border-[#dddbff]/50 shadow-lg bg-white/90">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-1 h-8 bg-linear-to-b from-[#6366f1] to-[#8b5cf6] rounded-full"></div>
+              <h2 className="text-2xl font-bold text-[#040316]">Teaching Categories</h2>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {categories.map((category) => (
+                <div
+                  key={category.id}
+                  className="flex items-center justify-between p-4 rounded-xl bg-linear-to-br from-[#f5f3ff] to-[#faf9ff] border border-[#dddbff]/50 hover:shadow-md transition-shadow"
                 >
-                  {skill.level}
-                </Badge>
-              </div>
-            ))}
-          </div>
-        </Card>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2.5 h-2.5 rounded-full bg-linear-to-r from-[#2f27ce] to-[#443dff]"></div>
+                    <div>
+                      <p className="font-semibold text-[#040316]">{category.title}</p>
+                      {category?.description && (
+                        <p className="text-xs text-[#040316]/60 mt-0.5">{category.description}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
 
-        {/* Achievements Section */}
-        <Card className="p-6 border-[#dddbff]/50 shadow-lg bg-gradient-to-br from-white to-[#faf9ff]">
+        {/* Stats */}
+        <Card className="p-6 border-[#dddbff]/50 shadow-lg bg-linear-to-br from-white to-[#faf9ff]\">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-1 h-8 bg-gradient-to-b from-amber-500 to-orange-500 rounded-full"></div>
+            <div className="w-1 h-8 bg-linear-to-b from-amber-500 to-orange-500 rounded-full"></div>
             <h2 className="text-2xl font-bold text-[#040316]">Achievements</h2>
           </div>
-          <div className="space-y-3">
+          <div className="grid sm:grid-cols-2 gap-4">
             <div className="flex items-start gap-3">
-              <Award className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
-              <p className="text-[#040316]/75">Top 5% instructor on SkillBridge</p>
+              <Award className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold text-[#040316]">{tutor?.completedSessions ?? 0}+</p>
+                <p className="text-sm text-[#040316]/60">Sessions Completed</p>
+              </div>
             </div>
             <div className="flex items-start gap-3">
-              <Award className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
-              <p className="text-[#040316]/75">500+ successful learning sessions completed</p>
-            </div>
-            <div className="flex items-start gap-3">
-              <Award className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
-              <p className="text-[#040316]/75">95% student satisfaction rate</p>
+              <Award className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold text-[#040316]">{tutor?.totalStudents ?? 0}+</p>
+                <p className="text-sm text-[#040316]/60">Students Taught</p>
+              </div>
             </div>
           </div>
         </Card>
@@ -95,8 +97,8 @@ export default function TutorDetailsTab({ tutor }: TutorDetailsTabProps) {
 
       {/* Sidebar */}
       <div className="space-y-6">
-        {/* Quick Info Card */}
-        <Card className="p-6 border-[#dddbff]/50 shadow-lg bg-gradient-to-br from-white via-[#faf9ff] to-white">
+        {/* Quick Info */}
+        <Card className="p-6 border-[#dddbff]/50 shadow-lg bg-linear-to-br from-white via-[#faf9ff] to-white">
           <h3 className="font-bold text-lg mb-5 text-[#040316]">Quick Info</h3>
           <div className="space-y-5">
             <div>
@@ -107,7 +109,7 @@ export default function TutorDetailsTab({ tutor }: TutorDetailsTabProps) {
                 <span className="text-sm font-medium text-[#040316]/70">Experience</span>
               </div>
               <p className="font-bold text-[#040316] pl-10 text-lg">
-                {tutor?.experienceYears || 5} years
+                {tutor?.experienceYears ?? 'Not specified'} {tutor?.experienceYears ? 'years' : ''}
               </p>
             </div>
 
@@ -121,7 +123,7 @@ export default function TutorDetailsTab({ tutor }: TutorDetailsTabProps) {
                 <span className="text-sm font-medium text-[#040316]/70">Education</span>
               </div>
               <p className="text-sm text-[#040316]/80 pl-10 leading-relaxed">
-                {tutor?.education || "Master's Degree in Computer Science"}
+                {tutor?.education || 'Not specified'}
               </p>
             </div>
 
@@ -141,36 +143,30 @@ export default function TutorDetailsTab({ tutor }: TutorDetailsTabProps) {
           </div>
         </Card>
 
-        {/* Availability Card */}
-        <Card className="p-6 border-[#dddbff]/50 shadow-lg bg-gradient-to-br from-[#faf9ff] to-white">
+        {/* Availability */}
+        <Card className="p-6 border-[#dddbff]/50 shadow-lg bg-linear-to-br from-[#faf9ff] to-white">
           <h3 className="font-bold text-lg mb-3 text-[#040316]">Availability</h3>
-          <div className="space-y-2">
-            <p className="text-sm text-[#040316]/75 leading-relaxed">
-              {tutor?.availability || "Monday - Friday"}
-            </p>
-            <p className="text-sm text-[#040316]/75 leading-relaxed">
-              9:00 AM - 6:00 PM EST
-            </p>
-          </div>
-          <div className="mt-4 pt-4 border-t border-[#dddbff]/40">
-            <p className="text-xs text-[#040316]/50">
-              Flexible scheduling available for different time zones
-            </p>
-          </div>
+          <p className="text-sm text-[#040316]/75 leading-relaxed">
+            {tutor?.availability || 'Availability to be confirmed'}
+          </p>
         </Card>
 
-        {/* Languages Card */}
-        <Card className="p-6 border-[#dddbff]/50 shadow-lg bg-gradient-to-br from-white to-[#faf9ff]">
+        {/* Languages */}
+        <Card className="p-6 border-[#dddbff]/50 shadow-lg bg-linear-to-br from-white to-[#faf9ff]">
           <h3 className="font-bold text-lg mb-3 text-[#040316]">Languages</h3>
           <div className="flex flex-wrap gap-2">
-            {(tutor?.languages || ["English", "Spanish"]).map((lang: string) => (
-              <Badge
-                key={lang}
-                className="bg-[#e0e7ff] text-[#2f27ce] hover:bg-[#2f27ce] hover:text-white transition-colors"
-              >
-                {lang}
-              </Badge>
-            ))}
+            {Array.isArray(tutor?.languages) && tutor.languages.length > 0 ? (
+              tutor.languages.map((lang: string) => (
+                <Badge
+                  key={lang}
+                  className="bg-[#e0e7ff] text-[#2f27ce] hover:bg-[#2f27ce] hover:text-white transition-colors"
+                >
+                  {lang}
+                </Badge>
+              ))
+            ) : (
+              <p className="text-sm text-[#040316]/60">No languages specified</p>
+            )}
           </div>
         </Card>
       </div>
