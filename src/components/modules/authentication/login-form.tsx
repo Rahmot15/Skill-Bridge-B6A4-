@@ -10,12 +10,25 @@ import { Eye, EyeOff, Mail, Lock, LogIn } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { FcGoogle } from "react-icons/fc";
+import { FaGithub } from "react-icons/fa";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
+
+  const handleSocialLogin = async (provider: "google" | "github") => {
+    try {
+      await authClient.signIn.social({
+        provider,
+        callbackURL: process.env.NEXT_PUBLIC_CLIENT_BASE_URL,
+      });
+    } catch (error) {
+      toast.error("Social login failed");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -102,13 +115,14 @@ export default function LoginForm() {
                   id="password"
                   name="password"
                   type={showPassword ? "text" : "password"}
+                  placeholder="Password"
                   className="pl-10 pr-10 h-12"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#2f27ce]/60 hover:text-[#2f27ce] transition-colors"
                 >
                   {showPassword ? <EyeOff /> : <Eye />}
                 </button>
@@ -118,7 +132,10 @@ export default function LoginForm() {
             {/* Remember */}
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <Checkbox id="remember" />
+                <Checkbox
+                  id="remember"
+                  className="border-[#2f27ce] data-[state=checked]:bg-[#2f27ce]"
+                />
                 <label htmlFor="remember" className="text-sm">
                   Remember me
                 </label>
@@ -129,10 +146,51 @@ export default function LoginForm() {
             </div>
 
             {/* Button */}
-            <Button type="submit" className="w-full h-12" disabled={isLoading}>
+            <Button
+              type="submit"
+              className="w-full h-12 bg-gradient-to-r from-[#2f27ce] to-[#443dff] hover:from-[#443dff] hover:to-[#2f27ce] text-white font-semibold rounded-xl shadow-lg shadow-[#2f27ce]/30  hover:shadow-xl hover:shadow-[#443dff]/40 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-350"
+              disabled={isLoading}
+            >
               {isLoading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
+
+          {/* Divider */}
+          <div className="relative my-6 animate-in fade-in duration-700 delay-400">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-[#dddbff]"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-4 bg-white text-[#040316]/60">
+                Or sign up with
+              </span>
+            </div>
+          </div>
+
+          {/* Social Register Buttons */}
+          <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500">
+            {/* GOOGLE */}
+            <Button
+              type="button"
+              onClick={() => handleSocialLogin("google")}
+              variant="outline"
+              className="h-12 border-[#e5e7eb] hover:bg-gray-50 hover:border-[#4285F4] transition-all rounded-xl flex items-center justify-center gap-2 font-medium shadow-sm hover:shadow-md active:scale-[0.98]"
+            >
+              <FcGoogle size={22} />
+              Google
+            </Button>
+
+            {/* GITHUB */}
+            <Button
+              type="button"
+              onClick={() => handleSocialLogin("github")}
+              variant="outline"
+              className="h-12 border-[#e5e7eb] hover:bg-gray-50 hover:border-black transition-all rounded-xl flex items-center justify-center gap-2 font-medium shadow-sm hover:shadow-md active:scale-[0.98]"
+            >
+              <FaGithub size={20} className="text-black" />
+              GitHub
+            </Button>
+          </div>
 
           <p className="text-center text-sm mt-6">
             Don&apos;t have an account?{" "}
