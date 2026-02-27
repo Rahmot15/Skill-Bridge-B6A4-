@@ -83,7 +83,12 @@ const topTutors = [
 
 export default function TopTutorsSection() {
   return (
-    <section className="py-16 bg-white">
+    <section className="relative py-16 bg-white">
+
+
+      <div className="absolute top-40 left-10 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-20 right-10 w-96 h-96 bg-yellow-500/10 rounded-full blur-3xl" />
+
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-12">

@@ -1,4 +1,4 @@
-import Footer from "@/components/layout/footer";
+import Footers from "@/components/modules/HomePages/Footers";
 import { Navbar } from "@/components/layout/navbar";
 
 export default function CommonLayout({
@@ -12,7 +12,7 @@ export default function CommonLayout({
       <div className="min-h-[calc(100vh-72px)]">
         {children}
       </div>
-      <Footer />
+      <Footers />
     </div>
   );
 }

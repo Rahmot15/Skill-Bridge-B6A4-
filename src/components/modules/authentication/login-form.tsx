@@ -23,7 +23,8 @@ export default function LoginForm() {
     try {
       await authClient.signIn.social({
         provider,
-        callbackURL: process.env.NEXT_PUBLIC_CLIENT_BASE_URL,
+        callbackURL: process.env.NEXT_PUBLIC_CLIENT_BASE_URL || 'https://skill-bridge-server-woad.vercel.app',
+        // callbackURL: window.location.origin,
       });
     } catch (error) {
       toast.error("Social login failed");

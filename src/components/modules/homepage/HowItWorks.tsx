@@ -31,7 +31,10 @@ export default function HowItWorksSection() {
   ];
 
   return (
-    <section className="py-16 bg-white">
+    <section className="relative py-16 bg-white">
+
+      <div className="absolute top-20 left-20 w-64 h-64 bg-yellow-500/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-20 right-20 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl" />
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-12">
