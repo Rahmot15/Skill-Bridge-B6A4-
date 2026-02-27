@@ -1,5 +1,3 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Mail } from "lucide-react";
@@ -19,7 +17,7 @@ export default function CheckEmailPage() {
             Check Your Email
           </h1>
           <p className="text-[#040316]/60">
-            We've sent a verification link to your email.
+            We ve sent a verification link to your email.
           </p>
         </div>
 
