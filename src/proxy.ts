@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { userService } from "./services/user.service";
 import { Roles } from "./constants/roles";
 
+const roleRedirectMap: Record<string, string> = {
+  [Roles.student]: "/dashboard",
+  [Roles.tutor]: "/tutor-dashboard",
+  [Roles.admin]: "/admin-dashboard",
+};
+
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
@@ -15,29 +21,28 @@ export async function proxy(request: NextRequest) {
     userRole = data.user.role;
   }
 
-  // Not logged in → redirect to login
+  // Not logged in → login
   if (!isAuthenticated) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // Find Tutor Details (Private - all roles allowed)
+  // Public private route (allowed all roles)
   if (pathname.startsWith("/find-tutors")) {
     return NextResponse.next();
   }
 
-  // Student Routes
-  if (pathname.startsWith("/dashboard") && userRole !== Roles.student) {
-    return NextResponse.redirect(new URL("/", request.url));
-  }
+  // If user tries wrong dashboard → redirect to own dashboard
+  if (
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/tutor-dashboard") ||
+    pathname.startsWith("/admin-dashboard")
+  ) {
+    const correctDashboard = roleRedirectMap[userRole!];
 
-  // Tutor Routes
-  if (pathname.startsWith("/tutor-dashboard") && userRole !== Roles.tutor) {
-    return NextResponse.redirect(new URL("/", request.url));
-  }
-
-  // Admin Routes
-  if (pathname.startsWith("/admin-dashboard") && userRole !== Roles.admin) {
-    return NextResponse.redirect(new URL("/", request.url));
+    // If not already on correct dashboard
+    if (!pathname.startsWith(correctDashboard)) {
+      return NextResponse.redirect(new URL(correctDashboard, request.url));
+    }
   }
 
   return NextResponse.next();

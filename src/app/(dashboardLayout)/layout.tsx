@@ -1,22 +1,31 @@
 import { userService } from "@/services/user.service"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
-import {
-  SidebarInset,
-  SidebarProvider,
-} from "@/components/ui/sidebar"
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 
-import StudentDashboard from "./@student/dashboard/page"
-import AdminDashboard from "./@admin/admin-dashboard/page"
-import TutorDashboard from "./@tutor/tutor-dashboard/page"
+type Role = "ADMIN" | "STUDENT" | "TUTOR"
 
-export default async function DashboardLayout() {
-
+export default async function DashboardLayout({
+  admin,
+  student,
+  tutor,
+}: {
+  admin: React.ReactNode
+  student: React.ReactNode
+  tutor: React.ReactNode
+}) {
   const { data } = await userService.getSession()
-  const role = data?.user?.role
+
+  const role = data?.user?.role as Role
 
   if (!role) {
     return <div>Unauthorized</div>
+  }
+
+  const roleUI = {
+    ADMIN: admin,
+    STUDENT: student,
+    TUTOR: tutor,
   }
 
   return (
@@ -26,30 +35,10 @@ export default async function DashboardLayout() {
       <SidebarInset>
         <SiteHeader />
 
-        <div className="flex flex-1 flex-col">
-
-          {/* ADMIN */}
-          {role === "ADMIN" && (
-            <>
-              <AdminDashboard/>
-            </>
-          )}
-
-          {/* STUDENT */}
-          {role === "STUDENT" && (
-            <>
-              <StudentDashboard/>
-            </>
-          )}
-
-          {/* TUTOR */}
-          {role === "TUTOR" && (
-            <>
-              <TutorDashboard/>
-            </>
-          )}
-
+        <div className="flex flex-1 flex-col p-6">
+          {roleUI[role]}
         </div>
+
       </SidebarInset>
     </SidebarProvider>
   )
