@@ -1,182 +1,163 @@
 "use client";
 
-import { Card } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Progress } from "@/components/ui/progress";
-import { Star } from "lucide-react";
+import { Star, MessageSquare } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Review {
   id: string;
   rating: number;
   comment: string;
   createdAt: string;
-  student: {
-    id: string;
-    name: string;
-    image: string | null;
-  };
+  student: { name: string; image: string | null };
 }
 
-interface Tutor {
-  id: string;
-  name: string;
-  rating: number | null;
-  totalReviews: number;
-}
+export default function TutorReviewsTab({ reviews }: { reviews: Review[] }) {
+  if (!reviews.length) {
+    return (
+      <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-zinc-200 bg-white py-20 text-center">
+        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-yellow-50">
+          <MessageSquare size={22} className="text-yellow-500" />
+        </div>
+        <p className="mt-4 text-[14px] font-semibold text-zinc-700">
+          No reviews yet
+        </p>
+        <p className="mt-1 text-[12px] text-zinc-400">
+          Be the first to leave a review after your session.
+        </p>
+      </div>
+    );
+  }
 
-interface TutorReviewsTabProps {
-  tutor: Tutor;
-  reviews: Review[];
-}
-
-export default function TutorReviewsTab({ tutor, reviews }: TutorReviewsTabProps) {
-  // Calculate rating breakdown
-  const ratingCounts = [0, 0, 0, 0, 0]; // Index 0 = 1 star, Index 4 = 5 stars
-  reviews.forEach((review) => {
-    if (review.rating >= 1 && review.rating <= 5) {
-      ratingCounts[review.rating - 1]++;
-    }
-  });
-
-  const totalReviews = tutor.totalReviews || reviews.length;
-  const averageRating = tutor.rating || 0;
-
-  const ratingBreakdown = [5, 4, 3, 2, 1].map((stars) => ({
-    stars,
-    count: ratingCounts[stars - 1],
-    percentage: totalReviews > 0 ? (ratingCounts[stars - 1] / totalReviews) * 100 : 0,
-  }));
+  // Average rating
+  const avg = (
+    reviews.reduce((s, r) => s + r.rating, 0) / reviews.length
+  ).toFixed(1);
 
   return (
-    <div className="grid lg:grid-cols-3 gap-6">
-      {/* Reviews List */}
-      <div className="lg:col-span-2 space-y-4">
-        {reviews.length > 0 ? (
-          reviews.map((review) => (
-            <Card
-              key={review.id}
-              className="p-6 border-[#dddbff]/50 shadow-lg bg-white/90 hover:shadow-xl transition-shadow"
-            >
-              <div className="flex items-start gap-4">
-                {/* Avatar */}
-                <Avatar className="w-12 h-12 flex-shrink-0">
-                  <AvatarImage src={review.student.image || undefined} />
-                  <AvatarFallback className="bg-gradient-to-br from-[#2f27ce] to-[#443dff] text-white font-semibold">
-                    {review.student.name.split(" ").map((n) => n[0]).join("")}
-                  </AvatarFallback>
-                </Avatar>
+    <div className="space-y-5">
+      {/* Summary bar */}
+      <div className="flex items-center gap-5 rounded-2xl border border-yellow-100 bg-yellow-50 px-6 py-4">
+        <div className="text-center">
+          <div className="text-[36px] font-black text-yellow-600 leading-none">
+            {avg}
+          </div>
+          <div className="mt-1 flex justify-center gap-0.5">
+            {[1, 2, 3, 4, 5].map((s) => (
+              <Star
+                key={s}
+                size={12}
+                className={cn(
+                  "fill-current",
+                  s <= Math.round(Number(avg))
+                    ? "text-yellow-400"
+                    : "text-zinc-200",
+                )}
+              />
+            ))}
+          </div>
+          <div className="mt-1 text-[11px] text-yellow-600">
+            {reviews.length} review{reviews.length !== 1 ? "s" : ""}
+          </div>
+        </div>
 
-                {/* Content */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <h4 className="font-semibold text-[#040316]">{review.student.name}</h4>
-                      <p className="text-xs text-[#040316]/50">
-                        {new Date(review.createdAt).toLocaleDateString("en-US", {
-                          month: "long",
-                          day: "numeric",
-                          year: "numeric",
-                        })}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-1 bg-[#f5f3ff] px-2.5 py-1 rounded-full">
-                      <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm font-bold text-[#040316]">{review.rating}</span>
-                    </div>
-                  </div>
-
-                  {/* Comment */}
-                  <p className="text-[#040316]/75 leading-relaxed">{review.comment}</p>
+        {/* Rating bars */}
+        <div className="flex-1 space-y-1.5">
+          {[5, 4, 3, 2, 1].map((star) => {
+            const count = reviews.filter((r) => r.rating === star).length;
+            const pct = reviews.length
+              ? Math.round((count / reviews.length) * 100)
+              : 0;
+            return (
+              <div key={star} className="flex items-center gap-2">
+                <span className="w-4 text-right text-[11px] font-semibold text-zinc-500">
+                  {star}
+                </span>
+                <Star
+                  size={10}
+                  className="shrink-0 fill-yellow-400 text-yellow-400"
+                />
+                <div className="flex-1 h-1.5 rounded-full bg-zinc-100 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-yellow-400 transition-all"
+                    style={{ width: `${pct}%` }}
+                  />
                 </div>
+                <span className="w-6 text-[10px] text-zinc-400">{count}</span>
               </div>
-            </Card>
-          ))
-        ) : (
-          <Card className="p-16 text-center border-[#dddbff]/50 shadow-lg">
-            <Star className="w-16 h-16 text-[#dddbff] mx-auto mb-4" />
-            <p className="text-xl font-semibold text-[#040316] mb-2">No reviews yet</p>
-            <p className="text-[#040316]/60">Be the first to leave a review!</p>
-          </Card>
-        )}
+            );
+          })}
+        </div>
       </div>
 
-      {/* Sidebar */}
-      <div className="space-y-6">
-        {/* Overall Rating */}
-        <Card className="p-6 border-[#dddbff]/50 shadow-lg bg-gradient-to-br from-white to-[#faf9ff]">
-          <div className="text-center mb-6">
-            <div className="text-6xl font-black text-[#040316] mb-2">
-              {averageRating > 0 ? averageRating.toFixed(1) : "New"}
-            </div>
-            {averageRating > 0 && (
-              <>
-                <div className="flex items-center justify-center gap-1 mb-2">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`w-5 h-5 ${
-                        i < Math.floor(averageRating)
-                          ? "fill-yellow-400 text-yellow-400"
-                          : "fill-gray-200 text-gray-200"
-                      }`}
-                    />
-                  ))}
-                </div>
-                <p className="text-sm text-[#040316]/60">
-                  Based on {totalReviews} {totalReviews === 1 ? "review" : "reviews"}
-                </p>
-              </>
-            )}
-          </div>
+      {/* Review cards */}
+      <div className="space-y-3">
+        {reviews.map((review) => {
+          const initials = review.student.name
+            .split(" ")
+            .map((n) => n[0])
+            .join("")
+            .toUpperCase()
+            .slice(0, 2);
 
-          {totalReviews > 0 && (
-            <div className="pt-6 border-t border-[#dddbff]/40">
-              <h3 className="font-bold text-lg mb-4 text-[#040316]">Rating Breakdown</h3>
-              <div className="space-y-3">
-                {ratingBreakdown.map(({ stars, percentage, count }) => (
-                  <div key={stars} className="flex items-center gap-3">
-                    <div className="flex items-center gap-1.5 min-w-[65px]">
-                      <span className="text-sm font-medium text-[#040316]">{stars}</span>
-                      <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
+          return (
+            <div
+              key={review.id}
+              className="rounded-2xl border border-zinc-100 bg-white p-5 shadow-sm"
+            >
+              <div className="flex items-start gap-3">
+                {/* Avatar — emerald for students */}
+                <div className="shrink-0">
+                  {review.student.image ? (
+                    <img
+                      src={review.student.image}
+                      alt={review.student.name}
+                      className="h-10 w-10 rounded-xl object-cover ring-2 ring-emerald-100"
+                    />
+                  ) : (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-300 to-emerald-400 text-[12px] font-bold text-white">
+                      {initials}
                     </div>
-                    <Progress value={percentage} className="flex-1 h-2.5 bg-[#f5f3ff]" />
-                    <span className="text-xs text-[#040316]/50 min-w-[35px] text-right">
-                      {count}
+                  )}
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-[13px] font-bold text-zinc-800">
+                      {review.student.name}
+                    </p>
+                    <span className="text-[11px] text-zinc-400">
+                      {new Date(review.createdAt).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
                     </span>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </Card>
 
-        {/* Review Stats */}
-        {totalReviews > 0 && (
-          <Card className="p-6 border-[#dddbff]/50 shadow-lg bg-gradient-to-br from-[#faf9ff] to-white">
-            <h3 className="font-bold text-lg mb-4 text-[#040316]">Review Stats</h3>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-[#040316]/70">Total Reviews</span>
-                <span className="font-bold text-[#040316]">{totalReviews}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-[#040316]/70">5-Star Reviews</span>
-                <span className="font-bold text-emerald-600">
-                  {totalReviews > 0
-                    ? Math.round((ratingCounts[4] / totalReviews) * 100)
-                    : 0}
-                  %
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-[#040316]/70">Average Rating</span>
-                <span className="font-bold text-[#2f27ce]">
-                  {averageRating > 0 ? averageRating.toFixed(1) : "N/A"}
-                </span>
+                  {/* Stars — yellow */}
+                  <div className="mt-1 flex gap-0.5">
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <Star
+                        key={s}
+                        size={12}
+                        className={cn(
+                          "fill-current",
+                          s <= review.rating
+                            ? "text-yellow-400"
+                            : "text-zinc-200",
+                        )}
+                      />
+                    ))}
+                  </div>
+
+                  <p className="mt-2 text-[13px] leading-relaxed text-zinc-600">
+                    {review.comment}
+                  </p>
+                </div>
               </div>
             </div>
-          </Card>
-        )}
+          );
+        })}
       </div>
     </div>
   );

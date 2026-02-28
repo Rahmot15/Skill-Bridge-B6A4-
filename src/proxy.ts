@@ -11,6 +11,11 @@ const roleRedirectMap: Record<string, string> = {
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
+  // PUBLIC ROUTE → allow without login
+  if (pathname.startsWith("/find-tutors")) {
+    return NextResponse.next();
+  }
+
   let isAuthenticated = false;
   let userRole: string | null = null;
 
@@ -21,17 +26,12 @@ export async function proxy(request: NextRequest) {
     userRole = data.user.role;
   }
 
-  // Not logged in → login
+  // Not logged in → redirect
   if (!isAuthenticated) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // Public private route (allowed all roles)
-  if (pathname.startsWith("/find-tutors")) {
-    return NextResponse.next();
-  }
-
-  // If user tries wrong dashboard → redirect to own dashboard
+  // Dashboard protection
   if (
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/tutor-dashboard") ||
@@ -39,7 +39,6 @@ export async function proxy(request: NextRequest) {
   ) {
     const correctDashboard = roleRedirectMap[userRole!];
 
-    // If not already on correct dashboard
     if (!pathname.startsWith(correctDashboard)) {
       return NextResponse.redirect(new URL(correctDashboard, request.url));
     }

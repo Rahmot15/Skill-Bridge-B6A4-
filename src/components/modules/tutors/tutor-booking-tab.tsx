@@ -1,268 +1,329 @@
 "use client";
 
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Calendar, DollarSign, CheckCircle2, AlertCircle } from "lucide-react";
+  Calendar,
+  DollarSign,
+  CheckCircle2,
+  AlertCircle,
+  BookOpen,
+  ChevronDown,
+  Send,
+} from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface Tutor {
   userId?: string;
-  user?: {
-    name?: string;
-  };
+  user?: { name?: string };
   hourlyRate?: number;
 }
-
 interface Category {
   id: string;
   title: string;
   description?: string;
 }
 
-interface TutorBookingTabProps {
+export default function TutorBookingTab({
+  tutor,
+  categories,
+}: {
   tutor: Tutor;
   categories: Category[];
-}
-
-export default function TutorBookingTab({ tutor, categories }: TutorBookingTabProps) {
+}) {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [bookingDate, setBookingDate] = useState("");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const selectedCat = categories.find((c) => c.id === selectedCategory);
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+
+    // Check login first
+    try {
+      const sessionRes = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/api/auth/session`,
+        { credentials: "include" },
+      );
+
+      if (!sessionRes.ok) {
+        toast.error("Please login first", {
+          description: "You must login to book a session.",
+        });
+
+        return;
+      }
+    } catch {
+      toast.error("Please login first");
+      return;
+    }
+
+    // Normal validation
+    if (!selectedCategory) {
+      toast.error("Please select a category.");
+      return;
+    }
+
+    if (!bookingDate) {
+      toast.error("Please choose a date.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/api/bookings`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/api/bookings`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            tutorId: tutor?.userId,
+            categoryId: selectedCategory,
+            date: new Date(bookingDate).toISOString(),
+            message: message || undefined,
+          }),
         },
-        body: JSON.stringify({
-          tutorId: tutor?.userId,
-          categoryId: selectedCategory,
-          date: new Date(bookingDate).toISOString(),
-          message: message || undefined,
-        }),
+      );
+
+      if (!res.ok) throw new Error("Failed");
+
+      toast.success("Booking request sent!", {
+        description: `Your session with ${tutor?.user?.name || "the tutor"} has been requested.`,
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to create booking");
-      }
-
-      const responseData = await response.json();
-      // Handle both direct response and wrapped {success, data} response
-      const bookingData = responseData?.data ?? responseData;
-
-      toast.success("Booking Request Sent!", {
-        description: `Your session request with ${tutor?.user?.name || "the tutor"} has been sent successfully.`,
-      });
-
-      // Reset form
       setSelectedCategory("");
       setBookingDate("");
       setMessage("");
-    } catch (error) {
-      console.error("Booking error:", error);
-      toast.error("Booking Failed", {
-        description: "Failed to send booking request. Please try again.",
-      });
+    } catch {
+      toast.error("Booking failed", { description: "Please try again." });
     } finally {
       setIsSubmitting(false);
     }
-  };
-
+  }
   return (
-    <div className="grid lg:grid-cols-3 gap-6">
-      {/* Booking Form */}
+    <div className="grid gap-6 lg:grid-cols-3">
+      {/* ── Form (2/3) ── */}
       <div className="lg:col-span-2">
-        <Card className="p-8 border-[#dddbff]/50 shadow-xl bg-white/90">
-          <div className="mb-6">
-            <h2 className="text-3xl font-bold text-[#040316] mb-2">Book a Session</h2>
-            <p className="text-[#040316]/70">
-              Schedule a learning session with {tutor?.user?.name || "the tutor"}
+        <div className="rounded-2xl border border-zinc-100 bg-white p-6 shadow-sm">
+          {/* Header */}
+          <div className="mb-6 border-b border-zinc-50 pb-5">
+            <h2 className="text-[20px] font-black tracking-tight text-zinc-900">
+              Book a Session
+            </h2>
+            <p className="mt-0.5 text-[13px] text-zinc-400">
+              Schedule with {tutor?.user?.name || "this tutor"}
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Category Selection */}
-            <div>
-              <Label className="text-base font-semibold mb-3 block text-[#040316]">
-                Select Category
-              </Label>
-              <Select value={selectedCategory} onValueChange={setSelectedCategory} required>
-                <SelectTrigger className="h-14 text-base border-[#dddbff] focus:border-[#2f27ce] focus:ring-[#2f27ce]/20">
-                  <SelectValue placeholder="Choose a category..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.id} className="text-base">
-                      {category.title}
-                      {category.description && (
-                        <span className="text-xs text-[#040316]/60"> - {category.description}</span>
-                      )}
-                    </SelectItem>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Category */}
+            <div className="space-y-1.5">
+              <label className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+                <BookOpen size={10} /> Category
+              </label>
+              <div className="relative">
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  required
+                  className="w-full appearance-none rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 pr-10 text-[13px] text-zinc-700 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:bg-white transition"
+                >
+                  <option value="">Choose a category...</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.title}
+                    </option>
                   ))}
-                </SelectContent>
-              </Select>
+                </select>
+                <ChevronDown
+                  size={14}
+                  className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400"
+                />
+              </div>
             </div>
 
             {/* Date */}
-            <div>
-              <Label className="text-base font-semibold mb-3 flex items-center gap-2 text-[#040316]">
-                <Calendar className="w-4 h-4 text-[#2f27ce]" />
-                Preferred Date
-              </Label>
-              <Input
+            <div className="space-y-1.5">
+              <label className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+                <Calendar size={10} /> Preferred Date
+              </label>
+              <input
                 type="date"
                 value={bookingDate}
                 onChange={(e) => setBookingDate(e.target.value)}
                 required
                 min={new Date().toISOString().split("T")[0]}
-                className="h-14 text-base border-[#dddbff] focus:border-[#2f27ce] focus:ring-[#2f27ce]/20"
+                className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-[13px] text-zinc-700 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:bg-white transition"
               />
             </div>
 
             {/* Message */}
-            <div>
-              <Label className="text-base font-semibold mb-3 block text-[#040316]">
+            <div className="space-y-1.5">
+              <label className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
                 Message{" "}
-                <span className="text-[#040316]/50 font-normal text-sm">(Optional)</span>
-              </Label>
-              <Textarea
-                placeholder="Tell the tutor what you'd like to focus on, your current level, or any specific goals..."
+                <span className="normal-case tracking-normal font-normal text-zinc-300">
+                  — optional
+                </span>
+              </label>
+              <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                rows={5}
-                className="resize-none border-[#dddbff] focus:border-[#2f27ce] focus:ring-[#2f27ce]/20 text-base"
+                placeholder="Tell the tutor your goals, current level, or what you'd like to focus on..."
+                rows={4}
+                className="w-full resize-none rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-[13px] text-zinc-700 placeholder:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:bg-white transition"
               />
             </div>
 
-            {/* Price Preview */}
-            {selectedCategory && (
-              <div className="bg-linear-to-r from-[#f5f3ff] via-[#faf9ff] to-[#f5f3ff] rounded-xl p-5 flex justify-between items-center border border-[#dddbff]/50">
+            {/* Price preview — shows when category is selected */}
+            {selectedCat && (
+              <div className="flex items-center justify-between rounded-2xl border border-emerald-100 bg-emerald-50 px-5 py-4">
                 <div>
-                  <p className="text-sm text-[#040316]/60 mb-1">Estimated Cost</p>
-                  <p className="text-lg font-semibold text-[#040316]">
-                    {categories.find((c) => c.id === selectedCategory)?.title}
+                  <p className="text-[11px] text-emerald-600 font-semibold uppercase tracking-wider">
+                    Estimated Cost
+                  </p>
+                  <p className="mt-0.5 text-[14px] font-bold text-zinc-800">
+                    {selectedCat.title}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-3xl font-black text-[#2f27ce]">${tutor?.hourlyRate ?? 0}</p>
-                  <p className="text-sm text-[#040316]/60">/hour</p>
+                  <div className="text-[28px] font-black text-emerald-600 leading-none">
+                    ${tutor?.hourlyRate ?? 0}
+                  </div>
+                  <div className="text-[11px] text-zinc-400">/hour</div>
                 </div>
               </div>
             )}
 
-            {/* Submit Button */}
-            <Button
+            {/* Submit — emerald */}
+            <button
               type="submit"
               disabled={isSubmitting}
-              size="lg"
-              className="w-full h-16 text-lg font-bold bg-linear-to-r from-[#2f27ce] to-[#443dff] hover:from-[#443dff] hover:to-[#2f27ce] shadow-xl hover:shadow-2xl transition-all"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3.5 text-[14px] font-bold text-white shadow-md shadow-emerald-100 hover:bg-emerald-700 disabled:opacity-60 transition"
             >
               {isSubmitting ? (
-                <div className="flex items-center gap-3">
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  Sending Request...
-                </div>
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
               ) : (
-                "Send Booking Request"
+                <Send size={15} />
               )}
-            </Button>
+              {isSubmitting ? "Sending..." : "Send Booking Request"}
+            </button>
           </form>
-        </Card>
+        </div>
       </div>
 
-      {/* Sidebar */}
-      <div className="space-y-6">
-        {/* Booking Info */}
-        <Card className="p-6 border-[#dddbff]/50 shadow-lg bg-linear-to-br from-white to-[#faf9ff]">
-          <h3 className="font-bold text-lg mb-4 text-[#040316]">Booking Information</h3>
-          <div className="space-y-4 text-sm">
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-[#e0e7ff] flex items-center justify-center shrink-0">
-                <DollarSign className="w-4 h-4 text-[#2f27ce]" />
-              </div>
-              <div>
-                <p className="font-semibold text-[#040316] mb-1">Flexible Pricing</p>
-                <p className="text-[#040316]/70">
-                  ${tutor?.hourlyRate ?? 0}/hour. Discounts available for bulk sessions.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-[#d1fae5] flex items-center justify-center shrink-0">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-              </div>
-              <div>
-                <p className="font-semibold text-[#040316] mb-1">Quick Response</p>
-                <p className="text-[#040316]/70">Tutors typically respond within 2 hours</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-[#fef3c7] flex items-center justify-center shrink-0">
-                <Calendar className="w-4 h-4 text-amber-600" />
-              </div>
-              <div>
-                <p className="font-semibold text-[#040316] mb-1">Free Cancellation</p>
-                <p className="text-[#040316]/70">Cancel up to 24 hours before session starts</p>
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        {/* How it Works */}
-        <Card className="p-6 border-[#dddbff]/50 shadow-lg bg-linear-to-br from-[#faf9ff] to-white">
-          <h3 className="font-bold text-lg mb-4 text-[#040316]">How It Works</h3>
+      {/* ── Sidebar (1/3) ── */}
+      <div className="space-y-5">
+        {/* Booking info */}
+        <div className="rounded-2xl border border-zinc-100 bg-white p-5 shadow-sm">
+          <h3 className="mb-4 text-[13px] font-bold text-zinc-800">
+            Booking Info
+          </h3>
           <div className="space-y-4">
             {[
-              { step: 1, title: "Submit Request", desc: "Fill out the booking form" },
-              { step: 2, title: "Get Confirmation", desc: "Tutor reviews and confirms" },
-              { step: 3, title: "Start Learning", desc: "Join session and achieve goals" },
-            ].map(({ step, title, desc }) => (
-              <div key={step} className="flex gap-3">
-                <div className="w-7 h-7 rounded-full bg-linear-to-br from-[#2f27ce] to-[#443dff] flex items-center justify-center shrink-0 text-white text-sm font-bold">
-                  {step}
+              {
+                icon: DollarSign,
+                label: "Flexible Pricing",
+                desc: `$${tutor?.hourlyRate ?? 0}/hr. Discounts for bulk sessions.`,
+                accent: "emerald",
+              },
+              {
+                icon: CheckCircle2,
+                label: "Quick Response",
+                desc: "Tutors typically respond within 2 hours.",
+                accent: "emerald",
+              },
+              {
+                icon: Calendar,
+                label: "Free Cancellation",
+                desc: "Cancel up to 24 hours before session.",
+                accent: "yellow",
+              },
+            ].map(({ icon: Icon, label, desc, accent }) => (
+              <div key={label} className="flex gap-3">
+                <div
+                  className={cn(
+                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
+                    accent === "emerald"
+                      ? "bg-emerald-50 text-emerald-600"
+                      : "bg-yellow-50 text-yellow-600",
+                  )}
+                >
+                  <Icon size={14} />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-[#040316]">{title}</p>
-                  <p className="text-xs text-[#040316]/60 mt-0.5">{desc}</p>
+                  <p className="text-[12px] font-semibold text-zinc-700">
+                    {label}
+                  </p>
+                  <p className="text-[11px] text-zinc-400">{desc}</p>
                 </div>
               </div>
             ))}
           </div>
-        </Card>
+        </div>
 
-        {/* Important Note */}
-        <Card className="p-5 border-amber-200 bg-amber-50/50 shadow-md">
-          <div className="flex gap-3">
-            <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm font-semibold text-amber-900 mb-1">Important Note</p>
-              <p className="text-xs text-amber-800/80 leading-relaxed">
-                Your booking request will be sent to the tutor for review. Payment is only
-                required after the tutor confirms your session.
-              </p>
-            </div>
+        {/* How it works */}
+        <div className="rounded-2xl border border-zinc-100 bg-white p-5 shadow-sm">
+          <h3 className="mb-4 text-[13px] font-bold text-zinc-800">
+            How It Works
+          </h3>
+          <div className="space-y-4">
+            {[
+              {
+                step: 1,
+                title: "Submit Request",
+                desc: "Fill out the booking form",
+                accent: "emerald",
+              },
+              {
+                step: 2,
+                title: "Get Confirmed",
+                desc: "Tutor reviews and accepts",
+                accent: "yellow",
+              },
+              {
+                step: 3,
+                title: "Start Learning",
+                desc: "Join session and achieve goals",
+                accent: "emerald",
+              },
+            ].map(({ step, title, desc, accent }) => (
+              <div key={step} className="flex items-start gap-3">
+                <div
+                  className={cn(
+                    "flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[12px] font-black",
+                    accent === "emerald"
+                      ? "bg-emerald-100 text-emerald-700"
+                      : "bg-yellow-100 text-yellow-700",
+                  )}
+                >
+                  {step}
+                </div>
+                <div>
+                  <p className="text-[12px] font-semibold text-zinc-700">
+                    {title}
+                  </p>
+                  <p className="text-[11px] text-zinc-400">{desc}</p>
+                </div>
+              </div>
+            ))}
           </div>
-        </Card>
+        </div>
+
+        {/* Note — yellow */}
+        <div className="flex gap-3 rounded-2xl border border-yellow-200 bg-yellow-50 p-4">
+          <AlertCircle size={15} className="mt-0.5 shrink-0 text-yellow-600" />
+          <div>
+            <p className="text-[12px] font-semibold text-yellow-800">Note</p>
+            <p className="mt-0.5 text-[11px] leading-relaxed text-yellow-700">
+              Payment is only required after the tutor confirms your session
+              request.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,16 +1,20 @@
 "use client";
 
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Clock, GraduationCap, TrendingUp, Award } from "lucide-react";
+import {
+  Clock,
+  GraduationCap,
+  TrendingUp,
+  Award,
+  BookOpen,
+  Globe,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Category {
   id: string | number;
   title: string;
   description?: string;
 }
-
 interface Tutor {
   bio?: string;
   completedSessions?: number;
@@ -21,154 +25,217 @@ interface Tutor {
   languages?: string[];
 }
 
-interface TutorDetailsTabProps {
+export default function TutorDetailsTab({
+  tutor,
+  categories,
+}: {
   tutor: Tutor;
   categories: Category[];
-}
-
-export default function TutorDetailsTab({ tutor, categories }: TutorDetailsTabProps) {
+}) {
   return (
-    <div className="grid lg:grid-cols-3 gap-6">
-      {/* Main Content */}
-      <div className="lg:col-span-2 space-y-6">
+    <div className="grid gap-6 lg:grid-cols-3">
+      {/* ── Left (2/3) ── */}
+      <div className="space-y-5 lg:col-span-2">
         {/* About */}
-        <Card className="p-6 border-[#dddbff]/50 shadow-lg bg-white/90">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-1 h-8 bg-linear-to-b from-[#2f27ce] to-[#443dff] rounded-full"></div>
-            <h2 className="text-2xl font-bold text-[#040316]">About</h2>
+        <div className="rounded-2xl border border-zinc-100 bg-white p-6 shadow-sm">
+          <div className="mb-4 flex items-center gap-2">
+            <span className="h-5 w-1 rounded-full bg-gradient-to-b from-emerald-400 to-emerald-600" />
+            <h2 className="text-[16px] font-bold text-zinc-900">About</h2>
           </div>
-          <p className="text-[#040316]/75 leading-relaxed text-lg">
-            {tutor?.bio || "No bio available"}
+          <p className="text-[14px] leading-relaxed text-zinc-600">
+            {tutor?.bio || "No bio available."}
           </p>
-        </Card>
+        </div>
 
-        {/* Categories/Skills */}
-        {Array.isArray(categories) && categories.length > 0 && (
-          <Card className="p-6 border-[#dddbff]/50 shadow-lg bg-white/90">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-1 h-8 bg-linear-to-b from-[#6366f1] to-[#8b5cf6] rounded-full"></div>
-              <h2 className="text-2xl font-bold text-[#040316]">Teaching Categories</h2>
-            </div>
-            <div className="grid sm:grid-cols-2 gap-3">
-              {categories.map((category) => (
+        {/* Achievement stats */}
+        <div className="rounded-2xl border border-zinc-100 bg-white p-6 shadow-sm">
+          <div className="mb-4 flex items-center gap-2">
+            {/* yellow accent → achievements */}
+            <span className="h-5 w-1 rounded-full bg-gradient-to-b from-yellow-400 to-yellow-500" />
+            <h2 className="text-[16px] font-bold text-zinc-900">
+              Achievements
+            </h2>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            {[
+              {
+                icon: Award,
+                label: "Sessions Completed",
+                value: `${tutor?.completedSessions ?? 0}+`,
+                accent: "yellow",
+              },
+              {
+                icon: TrendingUp,
+                label: "Students Taught",
+                value: `${tutor?.totalStudents ?? 0}+`,
+                accent: "emerald",
+              },
+            ].map(({ icon: Icon, label, value, accent }) => (
+              <div
+                key={label}
+                className={cn(
+                  "flex items-center gap-3 rounded-xl p-4",
+                  accent === "yellow"
+                    ? "bg-yellow-50 border border-yellow-100"
+                    : "bg-emerald-50 border border-emerald-100",
+                )}
+              >
                 <div
-                  key={category.id}
-                  className="flex items-center justify-between p-4 rounded-xl bg-linear-to-br from-[#f5f3ff] to-[#faf9ff] border border-[#dddbff]/50 hover:shadow-md transition-shadow"
+                  className={cn(
+                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
+                    accent === "yellow"
+                      ? "bg-yellow-100 text-yellow-600"
+                      : "bg-emerald-100 text-emerald-600",
+                  )}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-2.5 h-2.5 rounded-full bg-linear-to-r from-[#2f27ce] to-[#443dff]"></div>
-                    <div>
-                      <p className="font-semibold text-[#040316]">{category.title}</p>
-                      {category?.description && (
-                        <p className="text-xs text-[#040316]/60 mt-0.5">{category.description}</p>
-                      )}
-                    </div>
+                  <Icon size={18} />
+                </div>
+                <div>
+                  <div
+                    className={cn(
+                      "text-[20px] font-black leading-none",
+                      accent === "yellow"
+                        ? "text-yellow-700"
+                        : "text-emerald-700",
+                    )}
+                  >
+                    {value}
+                  </div>
+                  <div className="mt-0.5 text-[11px] text-zinc-400">
+                    {label}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Categories */}
+        {Array.isArray(categories) && categories.length > 0 && (
+          <div className="rounded-2xl border border-zinc-100 bg-white p-6 shadow-sm">
+            <div className="mb-4 flex items-center gap-2">
+              <span className="h-5 w-1 rounded-full bg-gradient-to-b from-emerald-400 to-emerald-600" />
+              <h2 className="text-[16px] font-bold text-zinc-900">
+                Teaching Categories
+              </h2>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {categories.map((cat, i) => (
+                <div
+                  key={cat.id}
+                  className="flex items-center gap-3 rounded-xl border border-zinc-100 bg-zinc-50 p-4 hover:border-emerald-100 hover:bg-emerald-50/50 transition-colors"
+                >
+                  <span
+                    className={cn(
+                      "h-2.5 w-2.5 shrink-0 rounded-full",
+                      i % 2 === 0 ? "bg-emerald-400" : "bg-yellow-400",
+                    )}
+                  />
+                  <div>
+                    <p className="text-[13px] font-semibold text-zinc-800">
+                      {cat.title}
+                    </p>
+                    {cat.description && (
+                      <p className="mt-0.5 text-[11px] text-zinc-400">
+                        {cat.description}
+                      </p>
+                    )}
                   </div>
                 </div>
               ))}
             </div>
-          </Card>
+          </div>
         )}
-
-        {/* Stats */}
-        <Card className="p-6 border-[#dddbff]/50 shadow-lg bg-linear-to-br from-white to-[#faf9ff]\">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-1 h-8 bg-linear-to-b from-amber-500 to-orange-500 rounded-full"></div>
-            <h2 className="text-2xl font-bold text-[#040316]">Achievements</h2>
-          </div>
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div className="flex items-start gap-3">
-              <Award className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-              <div>
-                <p className="font-semibold text-[#040316]">{tutor?.completedSessions ?? 0}+</p>
-                <p className="text-sm text-[#040316]/60">Sessions Completed</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <Award className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-              <div>
-                <p className="font-semibold text-[#040316]">{tutor?.totalStudents ?? 0}+</p>
-                <p className="text-sm text-[#040316]/60">Students Taught</p>
-              </div>
-            </div>
-          </div>
-        </Card>
       </div>
 
-      {/* Sidebar */}
-      <div className="space-y-6">
-        {/* Quick Info */}
-        <Card className="p-6 border-[#dddbff]/50 shadow-lg bg-linear-to-br from-white via-[#faf9ff] to-white">
-          <h3 className="font-bold text-lg mb-5 text-[#040316]">Quick Info</h3>
-          <div className="space-y-5">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-8 h-8 rounded-lg bg-[#e0e7ff] flex items-center justify-center">
-                  <Clock className="w-4 h-4 text-[#2f27ce]" />
+      {/* ── Sidebar (1/3) ── */}
+      <div className="space-y-5">
+        {/* Quick info */}
+        <div className="rounded-2xl border border-zinc-100 bg-white p-5 shadow-sm">
+          <h3 className="mb-4 text-[13px] font-bold text-zinc-800">
+            Quick Info
+          </h3>
+          <div className="space-y-4">
+            {[
+              {
+                icon: Clock,
+                label: "Experience",
+                value: tutor?.experienceYears
+                  ? `${tutor.experienceYears} years`
+                  : "Not specified",
+                accent: "yellow",
+              },
+              {
+                icon: GraduationCap,
+                label: "Education",
+                value: tutor?.education || "Not specified",
+                accent: "emerald",
+              },
+              {
+                icon: TrendingUp,
+                label: "Response Time",
+                value: "Within 2 hours",
+                accent: "emerald",
+              },
+            ].map(({ icon: Icon, label, value, accent }) => (
+              <div key={label} className="flex items-start gap-3">
+                <div
+                  className={cn(
+                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
+                    accent === "yellow"
+                      ? "bg-yellow-50 text-yellow-600"
+                      : "bg-emerald-50 text-emerald-600",
+                  )}
+                >
+                  <Icon size={14} />
                 </div>
-                <span className="text-sm font-medium text-[#040316]/70">Experience</span>
-              </div>
-              <p className="font-bold text-[#040316] pl-10 text-lg">
-                {tutor?.experienceYears ?? 'Not specified'} {tutor?.experienceYears ? 'years' : ''}
-              </p>
-            </div>
-
-            <Separator className="bg-[#dddbff]/40" />
-
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-8 h-8 rounded-lg bg-[#f3e8ff] flex items-center justify-center">
-                  <GraduationCap className="w-4 h-4 text-[#6366f1]" />
+                <div>
+                  <p className="text-[11px] text-zinc-400">{label}</p>
+                  <p className="text-[13px] font-semibold text-zinc-700">
+                    {value}
+                  </p>
                 </div>
-                <span className="text-sm font-medium text-[#040316]/70">Education</span>
               </div>
-              <p className="text-sm text-[#040316]/80 pl-10 leading-relaxed">
-                {tutor?.education || 'Not specified'}
-              </p>
-            </div>
-
-            <Separator className="bg-[#dddbff]/40" />
-
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-8 h-8 rounded-lg bg-[#d1fae5] flex items-center justify-center">
-                  <TrendingUp className="w-4 h-4 text-emerald-500" />
-                </div>
-                <span className="text-sm font-medium text-[#040316]/70">Response Time</span>
-              </div>
-              <p className="text-sm font-semibold text-emerald-600 pl-10">
-                Within 2 hours
-              </p>
-            </div>
+            ))}
           </div>
-        </Card>
+        </div>
 
         {/* Availability */}
-        <Card className="p-6 border-[#dddbff]/50 shadow-lg bg-linear-to-br from-[#faf9ff] to-white">
-          <h3 className="font-bold text-lg mb-3 text-[#040316]">Availability</h3>
-          <p className="text-sm text-[#040316]/75 leading-relaxed">
-            {tutor?.availability || 'Availability to be confirmed'}
+        <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-5">
+          <div className="mb-2 flex items-center gap-2">
+            <Clock size={13} className="text-emerald-600" />
+            <h3 className="text-[13px] font-bold text-emerald-800">
+              Availability
+            </h3>
+          </div>
+          <p className="text-[13px] text-emerald-700">
+            {tutor?.availability || "Flexible — contact tutor"}
           </p>
-        </Card>
+        </div>
 
         {/* Languages */}
-        <Card className="p-6 border-[#dddbff]/50 shadow-lg bg-linear-to-br from-white to-[#faf9ff]">
-          <h3 className="font-bold text-lg mb-3 text-[#040316]">Languages</h3>
-          <div className="flex flex-wrap gap-2">
+        <div className="rounded-2xl border border-zinc-100 bg-white p-5 shadow-sm">
+          <div className="mb-3 flex items-center gap-2">
+            <Globe size={13} className="text-zinc-400" />
+            <h3 className="text-[13px] font-bold text-zinc-800">Languages</h3>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
             {Array.isArray(tutor?.languages) && tutor.languages.length > 0 ? (
               tutor.languages.map((lang: string) => (
-                <Badge
+                <span
                   key={lang}
-                  className="bg-[#e0e7ff] text-[#2f27ce] hover:bg-[#2f27ce] hover:text-white transition-colors"
+                  className="rounded-lg bg-emerald-50 px-2.5 py-1 text-[12px] font-semibold text-emerald-700 ring-1 ring-emerald-100"
                 >
                   {lang}
-                </Badge>
+                </span>
               ))
             ) : (
-              <p className="text-sm text-[#040316]/60">No languages specified</p>
+              <p className="text-[12px] text-zinc-400">
+                No languages specified
+              </p>
             )}
           </div>
-        </Card>
+        </div>
       </div>
     </div>
   );
