@@ -8,7 +8,7 @@ export const adminService = {
     const cookieStore = await cookies();
 
     const res = await fetch(`${API_URL}/api/admin/users`, {
-      cache: "no-store",
+      next: { revalidate: 60 },
       headers: {
         Cookie: cookieStore.toString(),
       },
@@ -21,7 +21,7 @@ export const adminService = {
     const cookieStore = await cookies();
 
     const res = await fetch(`${API_URL}/api/admin/bookings`, {
-      cache: "no-store",
+      next: { revalidate: 60 },
       headers: {
         Cookie: cookieStore.toString(),
       },
@@ -32,7 +32,7 @@ export const adminService = {
 
   async getCategories() {
     const res = await fetch(`${API_URL}/api/categories`, {
-      cache: "no-store",
+      next: { revalidate: 60 },
     });
 
     return res.json();
@@ -42,7 +42,7 @@ export const adminService = {
     const cookieStore = await cookies();
 
     const res = await fetch(`${API_URL}/api/admin/bookings`, {
-      cache: "no-store",
+      next: { revalidate: 60 },
       headers: {
         Cookie: cookieStore.toString(),
       },

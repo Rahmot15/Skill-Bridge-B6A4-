@@ -8,7 +8,7 @@ export const tutorService = {
     const cookieStore = await cookies();
 
     const res = await fetch(`${API_URL}/api/tutors/me`, {
-      cache: "no-store",
+      next: { revalidate: 60 },
       headers: {
         Cookie: cookieStore.toString(),
       },
@@ -58,7 +58,7 @@ export const tutorService = {
     const cookieStore = await cookies();
 
     const res = await fetch(`${API_URL}/api/bookings/tutor`, {
-      cache: "no-store",
+      next: { revalidate: 60 },
       headers: {
         Cookie: cookieStore.toString(),
       },

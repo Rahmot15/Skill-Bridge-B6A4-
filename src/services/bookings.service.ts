@@ -7,7 +7,7 @@ export async function getBookings() {
   const cookieStore = await cookies();
 
   const res = await fetch(`${API_URL}/api/bookings`, {
-    cache: "no-store",
+    next: { revalidate: 60 },
     headers: {
       Cookie: cookieStore.toString(),
     },

@@ -20,11 +20,15 @@ import {
 import TutorDetailsTab from "@/components/modules/tutors/tutor-details-tab";
 import TutorReviewsTab from "@/components/modules/tutors/tutor-reviews-tab";
 import TutorBookingTab from "@/components/modules/tutors/tutor-booking-tab";
+import Link from "next/link";
 
 // Dynamic import Toaster to avoid hydration mismatch
-const Toaster = dynamic(() => import("sonner").then((mod) => ({ default: mod.Toaster })), {
-  ssr: false,
-});
+const Toaster = dynamic(
+  () => import("sonner").then((mod) => ({ default: mod.Toaster })),
+  {
+    ssr: false,
+  },
+);
 
 // Import tab components
 
@@ -102,7 +106,8 @@ export default function TutorDetailsPage() {
         const tutorUrl = `${baseUrl}/api/tutors/${id}`;
         const tutorRes = await fetch(tutorUrl, { signal: controller.signal });
 
-        if (!tutorRes.ok) throw new Error(`Failed to fetch tutor: ${tutorRes.status}`);
+        if (!tutorRes.ok)
+          throw new Error(`Failed to fetch tutor: ${tutorRes.status}`);
         const tutorResponse = await tutorRes.json();
 
         // Handle wrapped response {success: true, data: {...}}
@@ -115,8 +120,12 @@ export default function TutorDetailsPage() {
         if (tutorData?.userId) {
           try {
             const reviewsUrl = `${baseUrl}/api/reviews/tutor/${tutorData.userId}`;
-            const reviewsRes = await fetch(reviewsUrl, { signal: controller.signal });
-            const reviewsResponse = reviewsRes.ok ? await reviewsRes.json() : { data: [] };
+            const reviewsRes = await fetch(reviewsUrl, {
+              signal: controller.signal,
+            });
+            const reviewsResponse = reviewsRes.ok
+              ? await reviewsRes.json()
+              : { data: [] };
             const reviewsData = reviewsResponse?.data ?? reviewsResponse;
             if (isMounted) {
               setReviews(Array.isArray(reviewsData) ? reviewsData : []);
@@ -132,8 +141,12 @@ export default function TutorDetailsPage() {
         // Fetch categories
         try {
           const categoriesUrl = `${baseUrl}/api/categories`;
-          const categoriesRes = await fetch(categoriesUrl, { signal: controller.signal });
-          const categoriesResponse = categoriesRes.ok ? await categoriesRes.json() : { data: [] };
+          const categoriesRes = await fetch(categoriesUrl, {
+            signal: controller.signal,
+          });
+          const categoriesResponse = categoriesRes.ok
+            ? await categoriesRes.json()
+            : { data: [] };
           const categoriesData = categoriesResponse?.data ?? categoriesResponse;
           if (isMounted) {
             setCategories(Array.isArray(categoriesData) ? categoriesData : []);
@@ -180,13 +193,12 @@ export default function TutorDetailsPage() {
           <h2 className="text-2xl font-bold text-[#040316] mb-4">
             Tutor not found
           </h2>
-          <Button
-            onClick={() => router.push("/find-tutors")}
-            className="bg-[#2f27ce] hover:bg-[#443dff]"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Tutors
-          </Button>
+          <Link href="/find-tutors">
+            <Button className="bg-[#2f27ce] hover:bg-[#443dff]">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Tutors
+            </Button>
+          </Link>
         </div>
       </div>
     );
@@ -199,14 +211,15 @@ export default function TutorDetailsPage() {
         {/* Hero Header */}
         <div className="bg-linear-to-r from-[#2f27ce] via-[#443dff] to-[#6366f1] text-white">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <Button
-              variant="ghost"
-              onClick={() => router.push("/find-tutors")}
-              className="text-white hover:bg-white/10 mb-6"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Tutors
-            </Button>
+            <Link href="/find-tutors">
+              <Button
+                variant="ghost"
+                className="text-white hover:bg-white/10 mb-6"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Tutors
+              </Button>
+            </Link>
 
             <div className="flex flex-col lg:flex-row gap-8 items-start">
               {/* Profile Info */}
@@ -233,12 +246,16 @@ export default function TutorDetailsPage() {
                   <h1 className="text-4xl font-black mb-2">
                     {tutor?.user?.name || "Tutor"}
                   </h1>
-                  <p className="text-xl text-white/90 mb-4">{tutor?.title || "Experience Tutor"}</p>
+                  <p className="text-xl text-white/90 mb-4">
+                    {tutor?.title || "Experience Tutor"}
+                  </p>
 
                   <div className="flex flex-wrap gap-3 mb-4">
                     <div className="flex items-center gap-1.5 bg-white/15 backdrop-blur-sm px-4 py-2 rounded-full">
                       <Star className="w-4 h-4 fill-yellow-300 text-yellow-300" />
-                      <span className="font-bold">{tutor?.rating ?? "New"}</span>
+                      <span className="font-bold">
+                        {tutor?.rating ?? "New"}
+                      </span>
                       {(tutor?.totalReviews ?? 0) > 0 && (
                         <span className="text-white/75 text-sm">
                           ({tutor?.totalReviews})
@@ -262,16 +279,17 @@ export default function TutorDetailsPage() {
                   </div>
 
                   <div className="flex flex-wrap gap-2">
-                    {Array.isArray(tutor?.languages) && tutor.languages.length > 0 ? (
-                      tutor.languages.map((lang: string) => (
-                        <Badge
-                          key={lang}
-                          className="bg-white/20 text-white border-white/30 hover:bg-white/25"
-                        >
-                          {lang}
-                        </Badge>
-                      ))
-                    ) : null}
+                    {Array.isArray(tutor?.languages) &&
+                    tutor.languages.length > 0
+                      ? tutor.languages.map((lang: string) => (
+                          <Badge
+                            key={lang}
+                            className="bg-white/20 text-white border-white/30 hover:bg-white/25"
+                          >
+                            {lang}
+                          </Badge>
+                        ))
+                      : null}
                   </div>
                 </div>
               </div>

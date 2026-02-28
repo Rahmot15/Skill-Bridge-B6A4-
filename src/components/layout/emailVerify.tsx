@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -6,13 +6,16 @@ import { authClient } from "@/lib/auth-client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, XCircle, Mail, Loader2, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 export default function EmailVerifyPage() {
   const params = useSearchParams();
   const router = useRouter();
 
   const token = params.get("token");
-  const [status, setStatus] = useState<"verifying" | "success" | "error">("verifying");
+  const [status, setStatus] = useState<"verifying" | "success" | "error">(
+    "verifying",
+  );
 
   useEffect(() => {
     const verify = async () => {
@@ -127,7 +130,8 @@ export default function EmailVerifyPage() {
                 animation: progress 2s ease-in-out forwards;
               }
               @keyframes bounce-horizontal {
-                0%, 100% {
+                0%,
+                100% {
                   transform: translateX(0);
                 }
                 50% {
@@ -175,19 +179,20 @@ export default function EmailVerifyPage() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3">
-              <Button
-                onClick={() => router.push("/login")}
-                variant="outline"
-                className="flex-1 border-[#dddbff] hover:bg-[#dddbff]/30"
-              >
-                Go to Login
-              </Button>
-              <Button
-                onClick={() => router.push("/register")}
-                className="flex-1 bg-[#2f27ce] hover:bg-[#443dff] text-white"
-              >
-                Register Again
-              </Button>
+              <Link href="/login">
+                <Button
+                  variant="outline"
+                  className="flex-1 border-[#dddbff] hover:bg-[#dddbff]/30"
+                >
+                  Go to Login
+                </Button>
+              </Link>
+
+              <Link href="/register">
+                <Button className="flex-1 bg-[#2f27ce] hover:bg-[#443dff] text-white">
+                  Register Again
+                </Button>
+              </Link>
             </div>
 
             <button
