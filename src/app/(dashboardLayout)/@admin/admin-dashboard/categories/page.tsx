@@ -1,8 +1,9 @@
-export default function AdminCategoriesPage() {
-  return (
-    <main>
-      <h1>Admin — Categories</h1>
-      <p>Manage course and tutor categories used across the site.</p>
-    </main>
-  )
+import AdminCategories from "@/components/modules/Dashboard/Admin/AdminCategories";
+import { adminService } from "@/services/admin.service";
+
+export default async function AdminCategoriesPage() {
+  const res = await adminService.getCategories();
+  const categories = res?.data || [];
+
+  return <AdminCategories categories={categories} />;
 }

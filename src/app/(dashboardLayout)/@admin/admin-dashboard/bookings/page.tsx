@@ -1,8 +1,9 @@
-export default function AdminBookingsPage() {
-  return (
-    <main>
-      <h1>Admin — Bookings</h1>
-      <p>View and manage all bookings across the platform.</p>
-    </main>
-  )
+import AdminBookings from "@/components/modules/Dashboard/Admin/AdminBookings";
+import { adminService } from "@/services/admin.service";
+
+export default async function AdminBookingsPage() {
+  const res = await adminService.getAllBookings();
+  const bookings = res?.data || [];
+
+  return <AdminBookings bookings={bookings} />;
 }

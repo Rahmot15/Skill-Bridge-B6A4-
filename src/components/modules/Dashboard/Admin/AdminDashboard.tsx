@@ -1,0 +1,195 @@
+"use client";
+
+import { Users, GraduationCap, BookOpen, Layers, ShieldCheck, TrendingUp, UserCheck } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+// ─── Type ─────────────────────────────────────────────────────────────────────
+
+type Stats = {
+  totalUsers: number;
+  totalTutors: number;
+  totalStudents: number;
+  totalBookings: number;
+  totalCategories: number;
+};
+
+// ─── Stat Card ────────────────────────────────────────────────────────────────
+
+function StatCard({ icon: Icon, label, value, accent, note }: {
+  icon: React.ElementType;
+  label: string;
+  value: number;
+  accent?: "emerald" | "yellow" | "zinc";
+  note?: string;
+}) {
+  return (
+    <div className={cn(
+      "relative overflow-hidden rounded-2xl border p-5 shadow-sm",
+      accent === "emerald" ? "bg-emerald-50 border-emerald-100" :
+      accent === "yellow"  ? "bg-yellow-50  border-yellow-100"  :
+      "bg-white border-zinc-100"
+    )}>
+      {/* Watermark icon */}
+      <div className="absolute -right-3 -bottom-3 opacity-[0.06]">
+        <Icon size={72} />
+      </div>
+
+      {/* Icon box */}
+      <div className={cn(
+        "flex h-10 w-10 items-center justify-center rounded-xl",
+        accent === "emerald" ? "bg-emerald-100 text-emerald-600" :
+        accent === "yellow"  ? "bg-yellow-100  text-yellow-600"  :
+        "bg-zinc-100 text-zinc-500"
+      )}>
+        <Icon size={18} />
+      </div>
+
+      <div className="mt-3">
+        <div className={cn(
+          "text-[30px] font-bold leading-none",
+          accent === "emerald" ? "text-emerald-700" :
+          accent === "yellow"  ? "text-yellow-700"  :
+          "text-zinc-800"
+        )}>
+          {value}
+        </div>
+        <div className="mt-1 text-[12px] font-medium text-zinc-400">{label}</div>
+        {note && (
+          <div className="mt-2 inline-flex items-center gap-1 rounded-md bg-white/60 px-2 py-0.5 text-[10px] font-medium text-zinc-400">
+            <TrendingUp size={9} />
+            {note}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Quick action button ──────────────────────────────────────────────────────
+
+function QuickAction({ icon: Icon, label, href, accent }: {
+  icon: React.ElementType;
+  label: string;
+  href: string;
+  accent?: "emerald" | "yellow";
+}) {
+  return (
+    <a
+      href={href}
+      className={cn(
+        "group flex items-center gap-3 rounded-xl border p-4 transition-all hover:shadow-md",
+        accent === "emerald" ? "border-emerald-100 bg-emerald-50 hover:border-emerald-200" :
+        accent === "yellow"  ? "border-yellow-100  bg-yellow-50  hover:border-yellow-200"  :
+        "border-zinc-100 bg-white hover:border-zinc-200"
+      )}
+    >
+      <div className={cn(
+        "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors",
+        accent === "emerald" ? "bg-emerald-100 text-emerald-600 group-hover:bg-emerald-200" :
+        accent === "yellow"  ? "bg-yellow-100  text-yellow-600  group-hover:bg-yellow-200"  :
+        "bg-zinc-100 text-zinc-500 group-hover:bg-zinc-200"
+      )}>
+        <Icon size={16} />
+      </div>
+      <span className="text-[13px] font-semibold text-zinc-700">{label}</span>
+      <span className="ml-auto text-zinc-300 transition-transform group-hover:translate-x-0.5">→</span>
+    </a>
+  );
+}
+
+// ─── Main ─────────────────────────────────────────────────────────────────────
+
+export default function AdminDashboard({ stats }: { stats: Stats }) {
+  // Tutor/Student ratio for a simple visual
+  const tutorPct = stats.totalUsers > 0
+    ? Math.round((stats.totalTutors / stats.totalUsers) * 100)
+    : 0;
+  const studentPct = stats.totalUsers > 0
+    ? Math.round((stats.totalStudents / stats.totalUsers) * 100)
+    : 0;
+
+  return (
+    <div className="min-h-screen bg-zinc-50 p-6">
+      <div className="space-y-6">
+
+        {/* ── Header ── */}
+        <div className="flex items-end justify-between">
+          <div>
+            {/* zinc label → admin is neutral/authoritative */}
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
+              Admin Panel
+            </p>
+            <h1 className="mt-1 text-[26px] font-bold tracking-tight text-zinc-900">
+              Dashboard
+            </h1>
+          </div>
+          {/* Admin badge */}
+          <span className="inline-flex items-center gap-1.5 rounded-xl border border-zinc-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-zinc-600 shadow-sm">
+            <ShieldCheck size={13} className="text-emerald-500" />
+            Admin
+          </span>
+        </div>
+
+        {/* ── Stats grid ── */}
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+          <StatCard icon={Users}         label="Total Users"   value={stats.totalUsers}      accent="emerald" />
+          <StatCard icon={GraduationCap} label="Students"      value={stats.totalStudents}   accent="emerald"
+            note={`${studentPct}% of users`} />
+          <StatCard icon={UserCheck}     label="Tutors"        value={stats.totalTutors}     accent="yellow"
+            note={`${tutorPct}% of users`} />
+          <StatCard icon={BookOpen}      label="Bookings"      value={stats.totalBookings} />
+          <StatCard icon={Layers}        label="Categories"    value={stats.totalCategories} />
+        </div>
+
+        {/* ── User breakdown bar ── */}
+        <div className="rounded-2xl border border-zinc-100 bg-white p-5 shadow-sm">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-[13px] font-bold text-zinc-800">User Breakdown</h2>
+            <span className="text-[12px] text-zinc-400">{stats.totalUsers} total</span>
+          </div>
+
+          {/* Progress bar */}
+          <div className="flex h-3 w-full overflow-hidden rounded-full bg-zinc-100">
+            {/* Students → emerald */}
+            <div
+              className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 transition-all duration-500"
+              style={{ width: `${studentPct}%` }}
+            />
+            {/* Tutors → yellow */}
+            <div
+              className="h-full bg-gradient-to-r from-yellow-300 to-yellow-400 transition-all duration-500"
+              style={{ width: `${tutorPct}%` }}
+            />
+          </div>
+
+          <div className="mt-3 flex items-center gap-5">
+            <div className="flex items-center gap-2">
+              <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
+              <span className="text-[12px] text-zinc-500">
+                Students <span className="font-semibold text-zinc-700">{stats.totalStudents}</span>
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="h-2.5 w-2.5 rounded-full bg-yellow-400" />
+              <span className="text-[12px] text-zinc-500">
+                Tutors <span className="font-semibold text-zinc-700">{stats.totalTutors}</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Quick actions ── */}
+        <div>
+          <h2 className="mb-3 text-[13px] font-bold text-zinc-800">Quick Actions</h2>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <QuickAction icon={Users}         label="Manage Users"      href="/admin-dashboard/users"      accent="emerald" />
+            <QuickAction icon={BookOpen}      label="All Bookings"      href="/admin-dashboard/bookings"   accent="emerald" />
+            <QuickAction icon={Layers}        label="Categories"        href="/admin-dashboard/categories" accent="yellow" />
+            <QuickAction icon={ShieldCheck}   label="Moderation"        href="/admin-dashboard/moderation" />
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}

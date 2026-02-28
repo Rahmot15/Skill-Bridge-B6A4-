@@ -1,8 +1,9 @@
-export default function AdminUsersPage() {
-  return (
-    <main>
-      <h1>Admin — Users</h1>
-      <p>Manage platform users: view, edit, suspend, or change roles.</p>
-    </main>
-  )
+import AdminUsers from "@/components/modules/Dashboard/Admin/AdminUsers";
+import { adminService } from "@/services/admin.service";
+
+export default async function AdminUsersPage() {
+  const res = await adminService.getUsers();
+  const users = res?.data || [];
+
+  return <AdminUsers users={users} />;
 }
