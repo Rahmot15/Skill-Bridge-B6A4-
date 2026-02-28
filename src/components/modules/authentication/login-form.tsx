@@ -23,8 +23,10 @@ export default function LoginForm() {
     try {
       await authClient.signIn.social({
         provider,
-        callbackURL: process.env.NEXT_PUBLIC_CLIENT_BASE_URL || 'https://skill-bridge-server-woad.vercel.app',
-        // callbackURL: window.location.origin,
+        callbackURL: process.env.NEXT_PUBLIC_CLIENT_BASE_URL,
+        fetchOptions: {
+          credentials: "include",
+        },
       });
     } catch (error) {
       toast.error("Social login failed");
@@ -46,6 +48,9 @@ export default function LoginForm() {
       const res = await authClient.signIn.email({
         email,
         password,
+        fetchOptions: {
+          credentials: "include",
+        },
       });
 
       console.log("LOGIN RESPONSE:", res);
