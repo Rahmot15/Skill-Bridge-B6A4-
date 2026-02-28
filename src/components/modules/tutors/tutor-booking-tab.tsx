@@ -48,13 +48,13 @@ export default function TutorBookingTab({
         { credentials: "include" },
       );
 
-      if (!sessionRes.ok) {
-        toast.error("Please login first", {
-          description: "You must login to book a session.",
-        });
+      // if (!sessionRes.ok) {
+      //   toast.error("Please login first", {
+      //     description: "You must login to book a session.",
+      //   });
 
-        return;
-      }
+      //   return;
+      // }
     } catch {
       toast.error("Please login first");
       return;
