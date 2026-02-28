@@ -24,7 +24,10 @@ export default function RegisterForm() {
     try {
       await authClient.signIn.social({
         provider,
-        callbackURL: process.env.NEXT_PUBLIC_CLIENT_BASE_URL,
+        callbackURL: window.location.origin,
+        fetchOptions: {
+          credentials: "include",
+        },
       });
     } catch (error) {
       toast.error("Social login failed");
@@ -34,8 +37,7 @@ export default function RegisterForm() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const form = e.currentTarget;
-    const formData = new FormData(form);
+    const formData = new FormData(e.currentTarget);
 
     const name = formData.get("name") as string;
     const email = formData.get("email") as string;
@@ -50,18 +52,21 @@ export default function RegisterForm() {
     try {
       setIsLoading(true);
 
-      await authClient.signUp.email({
+      const res = await authClient.signUp.email({
         name,
         email,
         password,
+        fetchOptions: { credentials: "include" },
       });
+
+      if (res?.error) throw new Error(res.error.message);
 
       toast.success("Account created successfully!");
       router.push("/check-email");
     } catch (error) {
-      const errorMessage =
+      const msg =
         error instanceof Error ? error.message : "Registration failed";
-      toast.error(errorMessage);
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }

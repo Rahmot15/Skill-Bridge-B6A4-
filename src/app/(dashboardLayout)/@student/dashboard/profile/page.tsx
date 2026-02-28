@@ -1,10 +1,10 @@
 import StudentProfile from "@/components/modules/Dashboard/Student/StudentProfile";
-import { userService } from "@/services/user.service";
+import { getServerSession } from "@/lib/getServerSession";
 
 export default async function StudentProfilePage() {
-  const { data, error } = await userService.getSession();
+  const data = await getServerSession();
 
-  if (error || !data) {
+  if (!data) {
     return (
       <div className="p-6">
         <h2 className="text-lg font-semibold text-red-500">

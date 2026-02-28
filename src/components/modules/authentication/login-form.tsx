@@ -23,7 +23,7 @@ export default function LoginForm() {
     try {
       await authClient.signIn.social({
         provider,
-        callbackURL: process.env.NEXT_PUBLIC_CLIENT_BASE_URL,
+        callbackURL: window.location.origin,
         fetchOptions: {
           credentials: "include",
         },
@@ -36,8 +36,7 @@ export default function LoginForm() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const form = e.currentTarget;
-    const formData = new FormData(form);
+    const formData = new FormData(e.currentTarget);
 
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
@@ -48,23 +47,20 @@ export default function LoginForm() {
       const res = await authClient.signIn.email({
         email,
         password,
-        fetchOptions: {
-          credentials: "include",
-        },
+        fetchOptions: { credentials: "include" },
       });
 
-      console.log("LOGIN RESPONSE:", res);
-      const session = await authClient.getSession();
-      console.log("SESSION:", session.data);
+      if (res?.error) throw new Error(res.error.message);
+
+      await authClient.getSession();
 
       toast.success("Login successful!");
 
       router.push("/");
+      router.refresh();
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Login failed";
-
-      toast.error(errorMessage);
+      const msg = error instanceof Error ? error.message : "Login failed";
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }

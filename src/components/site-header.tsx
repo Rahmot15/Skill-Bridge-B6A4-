@@ -1,24 +1,24 @@
-import { Separator } from "@/components/ui/separator"
-import { SidebarTrigger } from "@/components/ui/sidebar"
-import { userService } from "@/services/user.service"
-import { Bell } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Separator } from "@/components/ui/separator";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { getServerSession } from "@/lib/getServerSession";
+import { Bell } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export async function SiteHeader() {
-  const { data } = await userService.getSession()
-  const user = data?.user
+  const data = await getServerSession();
+  const user = data?.user;
 
-  const initials = user?.name
-    ?.split(" ")
-    .map((n: string) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2) ?? "U"
+  const initials =
+    user?.name
+      ?.split(" ")
+      .map((n: string) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) ?? "U";
 
   return (
     <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b border-zinc-100 bg-white transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
       <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
-
         {/* Sidebar toggle */}
         <SidebarTrigger className="-ml-1 text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 rounded-lg transition-colors" />
 
@@ -32,7 +32,6 @@ export async function SiteHeader() {
 
         {/* Right side */}
         <div className="ml-auto flex items-center gap-3">
-
           {/* Notification bell — yellow dot for unread */}
           <button className="relative flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 transition-colors">
             <Bell size={16} />
@@ -59,9 +58,8 @@ export async function SiteHeader() {
             {/* Online dot → emerald */}
             <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full border-2 border-white bg-emerald-400" />
           </div>
-
         </div>
       </div>
     </header>
-  )
+  );
 }

@@ -58,7 +58,7 @@ export const Navbar = ({
 
   const handleLogout = async () => {
     await authClient.signOut();
-    window.location.reload();
+    window.location.href = "/";
   };
 
   const userName = session?.user?.name ?? "User";

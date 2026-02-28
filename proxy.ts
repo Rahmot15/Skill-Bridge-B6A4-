@@ -16,7 +16,7 @@ export function proxy(request: NextRequest) {
   }
 
   // get from cookies (EDGE SAFE)
-  const token = request.cookies.get("__Secure-better-auth.session_token")?.value;
+  const token = request.cookies.get("better-auth.session_token")?.value;
   const role = request.cookies.get("role")?.value;
 
   // not logged in
